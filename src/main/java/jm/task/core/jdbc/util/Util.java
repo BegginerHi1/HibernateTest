@@ -40,4 +40,10 @@ public class Util {
         }
         return sessionFactory;
     }
+
+    public static void closeSessionFactory() {
+        if (sessionFactory != null) {
+            sessionFactory.close();
+        }
+    }
 }
