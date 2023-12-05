@@ -27,7 +27,6 @@ public class UserDaoHibernateImpl implements UserDao {
                     "  `lastname` VARCHAR(45) NULL,\n" +
                     "  `age` INT NULL,\n" +
                     "  PRIMARY KEY (`id`));").executeUpdate();
-            session.getTransaction().commit();
         } finally {
             session.close();
         }
@@ -40,7 +39,6 @@ public class UserDaoHibernateImpl implements UserDao {
         try {
             session.beginTransaction();
             session.createNativeQuery("drop table if exists user").executeUpdate();
-            session.getTransaction().commit();
             session.close();
         } finally {
             session.close();
@@ -54,7 +52,6 @@ public class UserDaoHibernateImpl implements UserDao {
             User user = new User(name, lastName, age);
             session.beginTransaction();
             session.save(user);
-            session.getTransaction().commit();
             session.close();
         } finally {
             session.close();
@@ -69,7 +66,6 @@ public class UserDaoHibernateImpl implements UserDao {
             User user = new User();
             user.setId(id);
             session.delete(user);
-            session.getTransaction().commit();
             session.close();
         } finally {
             session.close();
@@ -82,7 +78,6 @@ public class UserDaoHibernateImpl implements UserDao {
         try {
             session.beginTransaction();
             List<User> userList = session.createQuery("from User").getResultList();
-            session.getTransaction().commit();
             session.close();
             return userList;
         } finally {
@@ -96,7 +91,6 @@ public class UserDaoHibernateImpl implements UserDao {
         try {
             session.beginTransaction();
             session.createQuery("delete User").executeUpdate();
-            session.getTransaction().commit();
             session.close();
         } finally {
             session.close();
