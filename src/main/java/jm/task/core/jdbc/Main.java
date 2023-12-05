@@ -1,37 +1,46 @@
 package jm.task.core.jdbc;
 
 
-import jm.task.core.jdbc.dao.UserDao;
-import jm.task.core.jdbc.dao.UserDaoHibernateImpl;
 import jm.task.core.jdbc.model.User;
+import jm.task.core.jdbc.service.UserService;
+import jm.task.core.jdbc.service.UserServiceImpl;
+import jm.task.core.jdbc.util.Util;
 
-import java.util.ArrayList;
+
 import java.util.List;
 
 public class Main {
+
+    private static UserService userService = new UserServiceImpl();
+
     public static void main(String[] args) {
 
-        UserDao userDao = new UserDaoHibernateImpl();
+
+        userService.createUsersTable();
 
 
-        userDao.createUsersTable();
-
-
-        userDao.saveUser("A", "B", (byte) 1);
-        userDao.saveUser("B", "B", (byte) 2);
-        userDao.saveUser("C", "C", (byte) 3);
-        userDao.saveUser("D", "D", (byte) 4);
-
-
-        List<User> userList = userDao.getAllUsers();
+        List<User> userList = List.of(new User("A", "B", (byte) 1),
+                new User("B", "B", (byte) 2),
+                new User("C", "C", (byte) 3),
+                new User("D", "D", (byte) 4));
         for (User u : userList) {
+            userService.saveUser(u.getName(),u.getLastName(),u.getAge());
             System.out.println("User c именем " + u.getName() + " добавлен в базу данных");
         }
 
 
-        userDao.cleanUsersTable();
+        List<User> userList1 = userService.getAllUsers();
+        for (User u : userList1) {
+            System.out.println(u);
+        }
 
 
-        userDao.dropUsersTable();
+        userService.cleanUsersTable();
+
+
+        userService.dropUsersTable();
+
+
+        Util.closeSessionFactory();
     }
 }
