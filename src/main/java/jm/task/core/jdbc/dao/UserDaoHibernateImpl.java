@@ -4,12 +4,15 @@ import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class UserDaoHibernateImpl implements UserDao {
 
     private SessionFactory sessionFactory = Util.getSessionFactory();
+    private Transaction transaction;
 
     public UserDaoHibernateImpl() {
 
@@ -18,82 +21,90 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void createUsersTable() {
-        Session session = sessionFactory.getCurrentSession();
-        try {
-            session.beginTransaction();
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
             session.createNativeQuery("CREATE TABLE IF NOT EXISTS `base`.`user` (\n" +
                     "  `id` INT NOT NULL AUTO_INCREMENT,\n" +
                     "  `name` VARCHAR(45) NULL,\n" +
                     "  `lastname` VARCHAR(45) NULL,\n" +
                     "  `age` INT NULL,\n" +
                     "  PRIMARY KEY (`id`));").executeUpdate();
-        } finally {
-            session.close();
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
         }
     }
 
 
     @Override
     public void dropUsersTable() {
-        Session session = sessionFactory.getCurrentSession();
-        try {
-            session.beginTransaction();
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
             session.createNativeQuery("drop table if exists user").executeUpdate();
-            session.close();
-        } finally {
-            session.close();
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
         }
     }
 
     @Override
     public void saveUser(String name, String lastName, byte age) {
-        Session session = sessionFactory.getCurrentSession();
-        try {
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
             User user = new User(name, lastName, age);
-            session.beginTransaction();
             session.save(user);
-            session.close();
-        } finally {
-            session.close();
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
         }
     }
 
     @Override
     public void removeUserById(long id) {
-        Session session = sessionFactory.getCurrentSession();
-        try {
-            session.beginTransaction();
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
             User user = new User();
             user.setId(id);
             session.delete(user);
-            session.close();
-        } finally {
-            session.close();
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
         }
     }
 
     @Override
     public List<User> getAllUsers() {
-        Session session = sessionFactory.getCurrentSession();
-        try {
-            session.beginTransaction();
-            List<User> userList = session.createQuery("from User").getResultList();
-            session.close();
-            return userList;
-        } finally {
-            session.close();
+        List<User> userList = new ArrayList<>();
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
+            userList = session.createQuery("from User").getResultList();
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
         }
+        return userList;
     }
 
     @Override
     public void cleanUsersTable() {
-        Session session = sessionFactory.getCurrentSession();
-        try {
-            session.beginTransaction();
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
             session.createQuery("delete User").executeUpdate();
-            session.close();
-        } finally {
-            session.close();
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
         }
     }
 }
